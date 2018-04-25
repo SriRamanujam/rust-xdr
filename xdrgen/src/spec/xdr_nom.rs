@@ -466,7 +466,7 @@ named!(struct_type_spec< Vec<Decl> >,
 named!(struct_body< Vec<Decl> >,
     do_parse!(
         lbrace >>
-        decls: many1!(terminated!(declaration, semi)) >>
+        decls: many0!(terminated!(declaration, semi)) >>
         rbrace >>
         (decls)
     )
@@ -702,6 +702,9 @@ fn test_typedef() {
 
     assert_eq!(type_def(&b"struct foo { int a; };"[..]),
                Done(&b""[..], Defn::typespec("foo", Type::Struct(vec!(Decl::named("a", Type::Int))))));
+
+    assert_eq!(type_def(&b"struct foo {};"[..]),
+               Done(&b""[..], Defn::typespec("foo", Type::Struct(vec!()))));
 
     assert_eq!(type_def(&b"union foo switch(int a) { case 1: int a; };"[..]),
                Done(&b""[..], Defn::typespec("foo",
